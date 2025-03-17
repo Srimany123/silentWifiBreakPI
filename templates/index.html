@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPA2 Cracking Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #network-list {
+            margin-bottom: 20px;
+        }
+        #network-list button {
+            margin: 5px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            margin: 0 auto;
+        }
+        label {
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button#shutdown {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>WPA2 Cracking Interface</h1>
+
+    <div id="network-list">
+        <h3>Available Networks</h3>
+        <button onclick="scanNetworks()">Scan Networks</button>
+        <div id="networks"></div>
+    </div>
+
+    <form action="/start" method="POST">
+        <label for="bssid">BSSID:</label>
+        <input type="text" name="bssid" id="bssid" required>
+
+        <label for="channel">Channel:</label>
+        <input type="number" name="channel" id="channel" required>
+
+        <label for="wifi_adapter">Wi-Fi Adapter (e.g., wlan0):</label>
+        <input type="text" name="wifi_adapter" id="wifi_adapter" required>
+
+        <button type="submit">Start Cracking</button>
+    </form>
+
+    <form action="/shutdown" method="POST">
+        <button type="submit" id="shutdown">Emergency Shutdown</button>
+    </form>
+
+    <script>
+        // Function to scan available networks
+        function scanNetworks() {
+            fetch('/scan')
+                .then(response => response.json())
+                .then(data => {
+                    let networkDiv = document.getElementById('networks');
+                    networkDiv.innerHTML = ''; // Clear previous results
+
+                    data.forEach(network => {
+                        let button = document.createElement('button');
+                        button.innerHTML = network.bssid;
+                        button.onclick = function() {
+                            document.getElementById('bssid').value = network.bssid;
+                            document.getElementById('channel').value = network.channel;
+                            document.getElementById('wifi_adapter').value = 'wlan0'; // Default adapter (can be changed)
+                        };
+                        networkDiv.appendChild(button);
+                    });
+                })
+                .catch(error => console.error('Error scanning networks:', error));
+        }
+    </script>
+</body>
+</html>
